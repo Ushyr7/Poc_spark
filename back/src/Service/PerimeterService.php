@@ -33,35 +33,54 @@ class PerimeterService
             && preg_match("/^.{1,253}$/", $domain)
             && preg_match("/^[^\.]{1,63}(\.[^\.]{1,63})*$/", $domain));
     }
-    function isValidIp(string $ip): bool {
-        // Separate IP and port
-        $parts = explode(':', $ip);
-        $ipPart = $parts[0];
 
-        // Check IP
-        if (filter_var($ipPart, FILTER_VALIDATE_IP) === false) {
-            return false;
+    function getPort($ipWithPort)
+    {
+        $port = explode(':', $ipWithPort);
+        $port = $port[sizeof($port) - 1];
+        if (str_contains($port, '.') || str_contains($port, ']') ) {
+            return null;
         }
-        // Check port range
-        if (count($parts) >= 2) {
-            $portPart = $parts[1];
-            if (str_contains($portPart, '-')) {
-                // Port range specified
-                list($minPort, $maxPort) = explode('-', $portPart);
-                if ($minPort < 1 || $maxPort > 65535 || $minPort > $maxPort) {
-                    return false;
-                }
-            } else {
-                // Single port specified
-                $port = (int)$portPart;
-                if ($port < 1 || $port > 65535) {
-                    return false;
-                }
+        return $port;
+    }
+
+    function getIp($ipWithPort)
+    {
+        $ipParts = explode(':', $ipWithPort);
+        $ip = $ipParts[0];
+        if (!str_contains($ip, '.')) {
+            $ip = substr($ipParts[0], 1, strlen($ipParts[0])) . ':' . $ipParts[1] . ':' . $ipParts[2] . ':' . $ipParts[3] . ':' . $ipParts[4] . ':'
+                . $ipParts[5] . ':' . $ipParts[6] . ':' . substr($ipParts[7], 0, strlen($ipParts[7]) - 1);
+        }
+        return $ip;
+    }
+
+    function isValidIp($ip) {
+        if (filter_var($ip, FILTER_VALIDATE_IP))
+        {
+            return true;
+        }
+        return false;
+    }
+
+    function isValidPort($port)
+    {
+        if (str_contains($port, '-')) {
+            // Port range specified
+            list($minPort, $maxPort) = explode('-', $port);
+            if ($minPort < 1 || $maxPort > 65535 || $minPort > $maxPort) {
+                return false;
+            }
+        } else {
+            // Single port specified
+            $port = (int)$port;
+            if ($port < 1 || $port > 65535) {
+                return false;
             }
         }
-
         return true;
     }
+
 
     public function create(array $domains, string $email, array $ips, array $bannedIps): Perimeter
     {
@@ -82,33 +101,33 @@ class PerimeterService
             if (!is_string($ipAddress)) {
                 throw new InvalidArgumentException("ip must be a string.");
             }
+            $port = $this->getPort($ipAddress);
+            $ip = $this->getIp($ipAddress);
+
             // Check if the IP address contains a port range
-            if (str_contains($ipAddress, ":")) {
-                $parts = explode(':', $ipAddress);
-                $ip = $parts[0];
+            if (isset($port)) {
                 $portRange = null;
-                if (str_contains($parts[1], '-')) {
-                    $portRange = $parts[1];
+                if (str_contains($port, '-')) {
+                    $portRange = $port;
                 }
                 if ($portRange) {
                     [$start, $end] = explode("-", $portRange);
                     // Add each IP address with the corresponding port to the database
                     for ($i = $start; $i <= $end; $i++) {
-                        $ipWithPort = $ip . ":" . $i;
-                        if (!$this->isValidIp($ipWithPort)) {
-                            throw new InvalidArgumentException("Invalid ip " . $ipWithPort);
+                        if (!$this->isValidIp($ip) || !$this->isValidPort($i)) {
+                            throw new InvalidArgumentException("Invalid ip " . $ip . ':' . $i);
                         }
                         $ipObj = new Ip();
-                        $ipObj->setIpAddress($ipWithPort);
+                        $ipObj->setIpAddress($ip . ':' . $i);
                         $perimeter->addIp($ipObj);
                     }
                 } else {
                     // Single port specified
-                    if (!$this->isValidIp($ip.':' . $parts[1])) {
-                        throw new InvalidArgumentException("Invalid ip" . $ip . ':' . $parts[1]);
+                    if (!$this->isValidIp($ip) || !$this->isValidPort($port)) {
+                        throw new InvalidArgumentException("Invalid ip" . $ip . ':' . $port);
                     }
                     $ipObj = new Ip();
-                    $ipObj->setIpAddress($ip .':' . $parts[1]);
+                    $ipObj->setIpAddress($ip .':' . $port);
                     $perimeter->addIp($ipObj);
                 }
             } else {
@@ -126,33 +145,33 @@ class PerimeterService
             if (!is_string($ipAddress)) {
                 throw new InvalidArgumentException("ip must be a string.");
             }
+            $port = $this->getPort($ipAddress);
+            $ip = $this->getIp($ipAddress);
+
             // Check if the IP address contains a port range
-            if (str_contains($ipAddress, ":")) {
-                $parts = explode(':', $ipAddress);
-                $ip = $parts[0];
+            if (isset($port)) {
                 $portRange = null;
-                if (str_contains($parts[1], '-')) {
-                    $portRange = $parts[1];
+                if (str_contains($port, '-')) {
+                    $portRange = $port;
                 }
                 if ($portRange) {
                     [$start, $end] = explode("-", $portRange);
                     // Add each IP address with the corresponding port to the database
                     for ($i = $start; $i <= $end; $i++) {
-                        $ipWithPort = $ip . ":" . $i;
-                        if (!$this->isValidIp($ipWithPort)) {
-                            throw new InvalidArgumentException("Invalid ip " . $ipWithPort);
+                        if (!$this->isValidIp($ip) || !$this->isValidPort($i)) {
+                            throw new InvalidArgumentException("Invalid ip " . $ip . ':' . $i);
                         }
                         $ipObj = new BannedIp();
-                        $ipObj->setIpAddress($ipWithPort);
+                        $ipObj->setIpAddress($ip . ':' . $i);
                         $perimeter->addBannedIp($ipObj);
                     }
                 } else {
                     // Single port specified
-                    if (!$this->isValidIp($ip.':' . $parts[1])) {
-                        throw new InvalidArgumentException("Invalid ip" . $ip . ':' . $parts[1]);
+                    if (!$this->isValidIp($ip) || !$this->isValidPort($port)) {
+                        throw new InvalidArgumentException("Invalid ip" . $ip . ':' . $port);
                     }
                     $ipObj = new BannedIp();
-                    $ipObj->setIpAddress($ip .':' . $parts[1]);
+                    $ipObj->setIpAddress($ip .':' . $port);
                     $perimeter->addBannedIp($ipObj);
                 }
             } else {
