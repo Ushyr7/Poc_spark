@@ -36,64 +36,61 @@ foreach ($data as $row) {
         echo "----- Working on id :  " . $row['id'] . " domain_name : " . $row2['domain_name'] . " now  -------\n";
         $output = shell_exec("echo '" . $row2['domain_name'] . "' | nuclei -silent -j -u  -");
         if (isset($output)) {
+
+            //formation du JSON
             $output = str_replace("\n", ',', $output);
             $output = substr_replace($output, "", -1, 1);
             $output = "[" . $output . "]";
 //            $output = addslashes($output);
-            $filename = "file" .guidv4() . ".json";
-            if (file_put_contents("/var/www/" . $filename, $output) !== false) {
-                echo $filename . " created.\n";
-            } else {
-                echo "could not create file .";
-            }
 
-            //$cmd = "echo " . $output . " >> /var/www/" . $filename;
-//            $cmd = "echo " . $output;
-//            echo shell_exec($cmd);
-            //echo "created " . $filename. "\n";
-            //$vulnerabilities = json_decode($output);
-        }
-
-
-//        foreach ($vulnerabilities as $vulnerability) {
-        // Vérifier si la vulnérabilité existe déjà dans la base de données
-//            $template = ;
-//            $description =;
-//            $name = $vulnerability->info->name;
-//            $reference =;
-//            $severity=;
-//            $matched_at=;
-//            $timestamp=;
-//            $ip=;
-//            $query = "SELECT COUNT(*) as count FROM vulnerabilities WHERE name = :name AND perimeter_id = :perimeter_id";
-//            $stmt = $pdo->prepare($query);
-//            $stmt->execute(['name' => $name, 'perimeter_id' => $row['id']]);
-//            $result = $stmt->fetch(PDO::FETCH_ASSOC);
-//
-//            if ($result['count'] == 0) {
-//                // La vulnérabilité n'existe pas encore, donc on l'insère dans la base de données
-//                $query = "INSERT INTO vulnerabilities (id, perimeter_id, template, description, name, reference,
-//                             severity, matched_at, timestamp, ip, is_solved, is_visible, is_new)
-//                          VALUES (:id, :perimeter_id, :template, :description, :name, :reference,
-//                             :severity, :matched_at, :timestamp, :ip, :is_solved, :is_visible, :is_new)";
-//                $stmt = $pdo->prepare($query);
-//                $stmt->execute([
-//                    'id' => guidv4(),
-//                    'perimeter_id' => $row['id'],
-//                    'template' => $template,
-//                    'description' => $description,
-//                    'name' => $name,
-//                    'reference' => $reference,
-//                    'severity' => $severity,
-//                    'matched_at' => $matched_at,
-//                    'timestamp' => $timestamp,
-//                    'ip' => $ip,
-//                    'is_solved' => true,
-//                    'is_visible' => true,
-//                    'is_new' => false,
-//                ]);
+            //creation du JSON
+//            $filename = "file" .guidv4() . ".json";
+//            if (file_put_contents("/var/www/" . $filename, $output) !== false) {
+//                echo $filename . " created.\n";
+//            } else {
+//                echo "could not create file .";
 //            }
-//        }
+
+            $vulnerabilities = json_decode($output);
+
+            foreach ($vulnerabilities as $vulnerability) {
+                //Vérifier si la vulnérabilité existe déjà dans la base de données
+                $template = $vulnerability->template;
+                $description = $vulnerability->info->description;
+                $name = $vulnerability->info->name;
+                $reference =$vulnerability->info->reference;
+                $severity=$vulnerability->info->severity;
+                $matched_at=$vulnerability->{'matched-at'};
+                $timestamp=$vulnerability->timestamp;
+                $ip=$vulnerability->ip;
+                $query = "SELECT COUNT(*) as count FROM vulnerability WHERE name = :name AND perimeter_id = :perimeter_id";
+                $stmt = $pdo->prepare($query);
+                $stmt->execute(['name' => $name, 'perimeter_id' => $row['id']]);
+                $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                if ($result['count'] == 0) {
+                    // La vulnérabilité n'existe pas encore, donc on l'insère dans la base de données
+                    $query = "INSERT INTO vulnerability (id, perimeter_id, template, description, name, reference,
+                             severity, matched_at, timestamp, ip, status)
+                          VALUES (:id, :perimeter_id, :template, :description, :name, :reference,
+                             :severity, :matched_at, :timestamp, :ip, :status)";
+                    $stmt = $pdo->prepare($query);
+                    $stmt->execute([
+                        'id' => guidv4(),
+                        'perimeter_id' => $row['id'],
+                        'template' => $template,
+                        'description' => $description,
+                        'name' => $name,
+                        'reference' => $reference,
+                        'severity' => $severity,
+                        'matched_at' => $matched_at,
+                        'timestamp' => date("Y-m-d H:i:s", strtotime($timestamp)),
+                        'ip' => $ip,
+                        'status' => "new",
+                    ]);
+                }
+            }
+        }
     }
 }
 // Fermeture de la connexion à la base de données

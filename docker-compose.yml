@@ -2,13 +2,13 @@ version: '3.9'
 
 services:
   web:
-    build: .
+    build: ./back
     ports:
       - "8000:8000"
     depends_on:
       - db
     volumes:
-      - .:/app
+      - ./back:/app
   db:
     image: mysql:8.0
     environment:
@@ -21,15 +21,21 @@ services:
     ports:
       - "3306:3306"
   cron:
-    build: ./cron
+    build: ./back/cron
     volumes:
-      - ../back/scripts:/var/www
-      - ./log/cron:/var/log/cron
+      - ./back/scripts:/var/www
+      - ./back/log/cron:/var/log/cron
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+  front:
+    build: ./front
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./front:/app
 
 volumes:
   mysql-data:

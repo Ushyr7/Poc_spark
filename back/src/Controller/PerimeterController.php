@@ -140,4 +140,34 @@ class PerimeterController extends AbstractController
         }
         return new JsonResponse(['message' =>'Perimeter successfully created'], Response::HTTP_CREATED);
     }
+
+    #[Route('/perimeter/{id}', name: 'perimeter_update', methods: ['PUT'])]
+    public function update(Request $request, Perimeter $perimeter = null): JsonResponse
+    {
+        if ($perimeter === null) {
+            return new JsonResponse(['error' => 'Perimeter not found'], Response::HTTP_NOT_FOUND);
+        }
+
+        $data = json_decode($request->getContent(), true);
+        try {
+            if(isset($data['contactEmail']) && isset($data['domainNames']) && isset($data['ips']) && isset($data['bannedIps'])) {
+                if (!is_array($data['ips']))
+                    throw new InvalidArgumentException('ips field must be an array');
+                if (!is_array($data['domainNames']))
+                    throw new InvalidArgumentException('domainNames field must be an array');
+                if (!is_array($data['bannedIps']))
+                    throw new InvalidArgumentException('bannedIps field must be an array');
+
+                $this->perimeterService->update($perimeter, $data['domainNames'], $data['contactEmail'], $data['ips'],
+                    $data['bannedIps']);
+            } else {
+                return new JsonResponse(['error' =>'contactEmail, domainNames, ips or bannedIps have to be defined'], Response::HTTP_BAD_REQUEST);
+            }
+        }
+        catch(Exception $e) {
+            return new JsonResponse($e->getMessage(), Response::HTTP_BAD_REQUEST);
+        }
+        return new JsonResponse(['message' =>'Perimeter successfully updated'], Response::HTTP_OK);
+    }
+
 }

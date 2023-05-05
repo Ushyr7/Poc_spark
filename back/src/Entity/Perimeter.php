@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Repository\IpRepository;
 use App\Repository\PerimeterRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Types\Types;
@@ -14,6 +15,7 @@ use Ramsey\Uuid\UuidInterface;
 #[ORM\Entity(repositoryClass: PerimeterRepository::class)]
 class Perimeter
 {
+
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: "CUSTOM")]
     #[ORM\Column(type: 'uuid')]
@@ -28,15 +30,19 @@ class Perimeter
     private ?\DateTimeInterface $created_at;
 
     #[ORM\OneToMany(mappedBy: "perimeter", targetEntity: "App\Entity\Ip", cascade:["persist"])]
+    #[ORM\JoinColumn(onDelete: "CASCADE")]
     private $ips;
 
     #[ORM\OneToMany(mappedBy: "perimeter", targetEntity: "App\Entity\Domain", cascade:["persist"])]
+    #[ORM\JoinColumn(onDelete: "CASCADE")]
     private $domains;
 
     #[ORM\OneToMany(mappedBy: "perimeter", targetEntity: "App\Entity\Vulnerability", cascade:["persist"])]
+    #[ORM\JoinColumn(onDelete: "CASCADE")]
     private $vulnerabilites;
 
     #[ORM\OneToMany(mappedBy: "perimeter", targetEntity: "App\Entity\BannedIp", cascade:["persist"])]
+    #[ORM\JoinColumn(onDelete: "CASCADE")]
     private $bannedIps;
 
     public function __construct()
@@ -68,10 +74,10 @@ class Perimeter
         return $this->domains;
     }
 
-    /**
-     * @param ArrayCollection $domains
-     */
-
+    public function setDomains(PersistentCollection $domains): void
+    {
+        $this->domains = $domains;
+    }
 
     /**
      * @return string|null
@@ -133,16 +139,6 @@ class Perimeter
         return $this;
     }
 
-    public function removeIp(Ip $ip): self
-    {
-        if ($this->ips->removeElement($ip)) {
-            if ($ip->getPerimeter() === $this) {
-                $ip->setPerimeter(null);
-            }
-        }
-
-        return $this;
-    }
 
     public function addDomain(Domain $domain): self
     {
@@ -154,16 +150,6 @@ class Perimeter
         return $this;
     }
 
-    public function removeDomain(Domain $domain): self
-    {
-        if ($this->domains->removeElement($domain)) {
-            if ($domain->getPerimeter() === $this) {
-                $domain->setPerimeter(null);
-            }
-        }
-
-        return $this;
-    }
 
     /**
      * @return ArrayCollection
@@ -191,15 +177,7 @@ class Perimeter
         return $this;
     }
 
-    public function removeBannedIp(BannedIp $ip): self
-    {
-        if ($this->bannedIps->removeElement($ip)) {
-            if ($ip->getPerimeter() === $this) {
-                $ip->setPerimeter(null);
-            }
-        }
 
-        return $this;
-    }
+
 
 }
