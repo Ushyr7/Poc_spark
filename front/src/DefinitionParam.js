@@ -52,9 +52,16 @@ export default class DefinitionParam extends React.Component{
 
     onSubmit= async (e) =>{
         e.preventDefault();
-        const arr = this.state.ipsString.split(["\n"]).map(item => item.trim()) ;
+        let arr = this.state.ipsString.split(["\n"]).map(item => item.trim()) ;
+        arr = arr.filter(function(element) {
+            return element !== "";
+        });
+
         this.setState({ ips: arr });
-        const arr2 = this.state.bannedIpsString.split(["\n"]).map(item => item.trim()) ;
+        let arr2 = this.state.bannedIpsString.split(["\n"]).map(item => item.trim()) ;
+        arr2 = arr2.filter(function(element) {
+            return element !== "";
+        });
         this.setState({ bannedIps: arr2 });
 
     const payload = {
@@ -142,7 +149,7 @@ export default class DefinitionParam extends React.Component{
                 </div>
                   {/* Adresse IP à exclure Field*/}
                   <div className="mb-4">
-                    <label htmlFor="bannedIps" className="block font-bold mb-2">Adresse IP à exclure</label>
+                    <label htmlFor="bannedIps" className="block font-bold mb-2">Adresses IP à exclure</label>
                       <textarea
                         rows={5}
                         id="bannedIpsString"
@@ -177,13 +184,13 @@ export default class DefinitionParam extends React.Component{
                 <DialogContent>
                   <ul>
                   <li>
-                  <span className="font-bold">Nom du domaine:</span> {this.state.domainNames.join(', ')}
+                  <span className="font-bold">Noms de domaine:</span> {this.state.domainNames.join(', ')}
                   </li>
                   <li>
-                  <span className="font-bold">Adresses IP:</span> {this.state.ipsString.replaceAll("\n", ",")}
+                  <span className="font-bold">Adresses IP:</span> {this.state.ipsString.replaceAll("\n", ",").replaceAll(",,", ",")}
                   </li>
                   <li>
-                  <span className="font-bold">Adresses IP bannies:</span> {this.state.bannedIpsString.replaceAll("\n", ",")}
+                  <span className="font-bold">Adresses IP à exclure:</span> {this.state.bannedIpsString.replaceAll("\n", ",")}
                   </li>
                   <li>
                   <span className="font-bold">Email de contact:</span> {this.state.contactEmail}
