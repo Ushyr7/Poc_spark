@@ -19,8 +19,35 @@ export default class DefinitionParam extends React.Component{
         review: false,
         successMessageDisplay: false,
         errorMessageDisplay: false,
-
+        certFR: "",
     };
+
+
+
+
+    async componentDidMount() {
+        try {
+
+            const fetchData = async () => {
+                const result = await fetch(
+                    "https://api.allorigins.win/raw?url=https://estcequecestbientotleweekend.fr",
+                    {
+                        method: "GET",
+                        headers: {
+                            "x-requested-with": "text/plain",
+                        },
+                    }
+                );
+                const data = await result.text();
+                this.setState({ data });
+            };
+            await fetchData();
+            console.log(this.state.certFR);
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
 
     change = e=>{
       const { name, value } = e.target;
@@ -72,7 +99,6 @@ export default class DefinitionParam extends React.Component{
         contactEmail: this.state.contactEmail,
 
       };
-    console.log(payload);
 
       try {
         const response = await fetch('http://localhost:8000/perimeter', {
@@ -89,14 +115,12 @@ export default class DefinitionParam extends React.Component{
             this.setState({ successMessageDisplay: false });
         }, 3000);
         } else {
-          console.error("Erreur d'enregistrement.");
           this.setState({ ErrorMessage: "Veuillez vérifier les informations saisies." ,errorMessageDisplay: true });
           setTimeout(() => {
             this.setState({ errorMessageDisplay: false });
         }, 3000);
         }
       } catch (error) {
-        console.error(error);
         alert("Une erreur s'est produite lors de l'enregistrement.");
       }
     };
@@ -120,19 +144,16 @@ export default class DefinitionParam extends React.Component{
                     <div className="mb-4">
                         <label htmlFor="domainNames" className="block font-bold mb-2">Noms de domaine</label>
                         <input
-                        type="text"
-                        id="domainNames"
-                        name="domainNames"
-                        className="border border-gray-400 p-2 w-full"
-                        placeholder="Nom du domaine"
-                        value={this.state.domainNames}
-                        onChange={(e)  => this.change(e)}
-                        required
-
+                            type="text"
+                            id="domainNames"
+                            name="domainNames"
+                            className="border border-gray-400 p-2 w-full"
+                            placeholder="Nom de domaine"
+                            value={this.state.domainNames}
+                            onChange={(e)  => this.change(e)}
+                            required
                         />
                 </div>
-
-                {/* ips Field*/}
                 <div className="mb-4">
                     <label htmlFor="ips" className="block font-bold mb-2">Adresses IP</label>
                     <textarea
@@ -147,35 +168,32 @@ export default class DefinitionParam extends React.Component{
                         required
                     />
                 </div>
-                  {/* Adresse IP à exclure Field*/}
                   <div className="mb-4">
                     <label htmlFor="bannedIps" className="block font-bold mb-2">Adresses IP à exclure</label>
-                      <textarea
-                        rows={5}
-                        id="bannedIpsString"
-                        name="bannedIpsString"
-                        className="border border-gray-400 p-2 w-full"
-                        placeholder="Adresse IP à exclure "
-                        value={this.state.bannedIpsString}
-                        onChange={(e)  => this.changeIp(e) }
-                        onKeyPress={(event) => this.handleKeyPress(event, 'bannedIpsString')}
-                        required
+                    <textarea
+                      rows={5}
+                      id="bannedIpsString"
+                      name="bannedIpsString"
+                      className="border border-gray-400 p-2 w-full"
+                      placeholder="Adresse IP à exclure "
+                      value={this.state.bannedIpsString}
+                      onChange={(e)  => this.changeIp(e) }
+                      onKeyPress={(event) => this.handleKeyPress(event, 'bannedIpsString')}
+                      required
                     />
                 </div>
-
-                {/* Mail de contact Field*/}
                 <div className="mb-4">
                     <label htmlFor="contactEmail" className="block font-bold mb-2">Mail de contact</label>
                     <input
-                    type="text"
-                    id="contactEmail"
-                    name="contactEmail"
-                    className="border border-gray-400 p-2 w-full"
-                    placeholder="Mail de contact"
-                    value={this.state.contactEmail}
-                    onChange={(e)  => this.change(e) }
-                    required
-                    />
+                        type="text"
+                        id="contactEmail"
+                        name="contactEmail"
+                        className="border border-gray-400 p-2 w-full"
+                        placeholder="Mail de contact"
+                        value={this.state.contactEmail}
+                        onChange={(e)  => this.change(e) }
+                        required
+                        />
                 </div>
 
                 <button variant="contained" onMouseDown={this.handleReviewClick}>Vérifier</button>
@@ -184,13 +202,13 @@ export default class DefinitionParam extends React.Component{
                 <DialogContent>
                   <ul>
                   <li>
-                  <span className="font-bold">Noms de domaine:</span> {this.state.domainNames.join(', ')}
+                      <span className="font-bold">Noms de domaine:</span> {this.state.domainNames.join(', ')}
                   </li>
                   <li>
-                  <span className="font-bold">Adresses IP:</span> {this.state.ipsString.replaceAll("\n", ",").replaceAll(",,", ",")}
+                      <span className="font-bold">Adresses IP:</span> {this.state.ipsString.replaceAll("\n", ",").replaceAll(",,", ",")}
                   </li>
                   <li>
-                  <span className="font-bold">Adresses IP à exclure:</span> {this.state.bannedIpsString.replaceAll("\n", ",")}
+                      <span className="font-bold">Adresses IP à exclure:</span> {this.state.bannedIpsString.replaceAll("\n", ",")}
                   </li>
                   <li>
                   <span className="font-bold">Email de contact:</span> {this.state.contactEmail}
@@ -204,19 +222,13 @@ export default class DefinitionParam extends React.Component{
                 {this.state.successMessageDisplay && <p className="success-message">{this.state.confirmationMessage}</p>}
                 {this.state.errorMessageDisplay && <p className="error-message">{this.state.ErrorMessage}</p>}
                 </Dialog>
-                {/* Submit button */}
-
-
             </form>
         </div>
     </div>
+        <div>{this.state.certFR}</div>
     </div>
         );
     }
-
-
-
-
 
 }
 

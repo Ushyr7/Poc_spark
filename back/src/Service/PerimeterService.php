@@ -13,6 +13,8 @@ use App\Repository\PerimeterRepository;
 use DateTime;
 use Doctrine\Persistence\ManagerRegistry;
 use InvalidArgumentException;
+use Symfony\Component\Validator\Constraints as Assert;
+
 
 class PerimeterService
 {
@@ -96,6 +98,41 @@ class PerimeterService
     }
 
 
+    private function getIPRangeFromCIDR(string $ip, int $cidr): array
+    {
+        $ipParts = explode('.', $ip);
+        $ipParts = array_map('intval', $ipParts);
+
+        $ipAsInt = ($ipParts[0] << 24) + ($ipParts[1] << 16) + ($ipParts[2] << 8) + $ipParts[3];
+        $maskAsInt = (-1 << (32 - $cidr)) & 0xFFFFFFFF;
+
+        $startIP = $ipAsInt & $maskAsInt;
+        $endIP = $startIP + (~$maskAsInt & 0xFFFFFFFF);
+
+        $ipRange = [];
+        for ($i = $startIP; $i <= $endIP; $i++) {
+            $currentIP = (($i >> 24) & 255) . '.' . (($i >> 16) & 255) . '.' . (($i >> 8) & 255) . '.' . ($i & 255);
+            $ipRange[] = $currentIP;
+        }
+
+        return $ipRange;
+    }
+
+    private function isValidIpCIDR(string $ip, string $cidr): bool
+    {
+        // Check if the IP is valid
+        if (!$this->isValidIp($ip)) {
+            return false;
+        }
+
+        // Check if the CIDR is valid
+        if (!ctype_digit($cidr) || $cidr < 0 || $cidr > 32) {
+            return false;
+        }
+
+        return true;
+    }
+
     public function create(array $domains, string $email, array $ips, array $bannedIps): Perimeter
     {
         $entityManager = $this->doctrine->getManager();
@@ -115,37 +152,22 @@ class PerimeterService
             if (!is_string($ipAddress)) {
                 throw new InvalidArgumentException("ip must be a string.");
             }
-            $port = $this->getPort($ipAddress);
-            $ip = $this->getIp($ipAddress);
 
-            // Check if the IP address contains a port range
-            if (isset($port)) {
-                $portRange = null;
-                if (str_contains($port, '-')) {
-                    $portRange = $port;
+            // Check if the IP address contains CIDR notation
+            if (strpos($ipAddress, '/') !== false) {
+                [$ip, $cidr] = explode('/', $ipAddress);
+                if (!$this->isValidIpCIDR($ip, $cidr)) {
+                    throw new InvalidArgumentException("Invalid ip with CIDR: " . $ipAddress);
                 }
-                if ($portRange) {
-                    [$start, $end] = explode("-", $portRange);
-                    // Add each IP address with the corresponding port to the database
-                    for ($i = $start; $i <= $end; $i++) {
-                        if (!$this->isValidIp($ip) || !$this->isValidPort($i)) {
-                            throw new InvalidArgumentException("Invalid ip " . $ip . ':' . $i);
-                        }
-                        $ipObj = new Ip();
-                        $ipObj->setIpAddress($ip . ':' . $i);
-                        $perimeter->addIp($ipObj);
-                    }
-                } else {
-                    // Single port specified
-                    if (!$this->isValidIp($ip) || !$this->isValidPort($port)) {
-                        throw new InvalidArgumentException("Invalid ip" . $ip . ':' . $port);
-                    }
+
+                $ipRange = $this->getIPRangeFromCIDR($ip, $cidr);
+                foreach ($ipRange as $ipInRange) {
                     $ipObj = new Ip();
-                    $ipObj->setIpAddress($ip .':' . $port);
+                    $ipObj->setIpAddress($ipInRange);
                     $perimeter->addIp($ipObj);
                 }
             } else {
-                // Add single IP address to the database
+                // Single IP address specified
                 if (!$this->isValidIp($ipAddress)) {
                     throw new InvalidArgumentException("Invalid ip " . $ipAddress);
                 }
@@ -159,33 +181,17 @@ class PerimeterService
             if (!is_string($ipAddress)) {
                 throw new InvalidArgumentException("ip must be a string.");
             }
-            $port = $this->getPort($ipAddress);
-            $ip = $this->getIp($ipAddress);
-
-            // Check if the IP address contains a port range
-            if (isset($port)) {
-                $portRange = null;
-                if (str_contains($port, '-')) {
-                    $portRange = $port;
+            // Check if the IP address contains CIDR notation
+            if (strpos($ipAddress, '/') !== false) {
+                [$ip, $cidr] = explode('/', $ipAddress);
+                if (!$this->isValidIpCIDR($ip, $cidr)) {
+                    throw new InvalidArgumentException("Invalid ip with CIDR: " . $ipAddress);
                 }
-                if ($portRange) {
-                    [$start, $end] = explode("-", $portRange);
-                    // Add each IP address with the corresponding port to the database
-                    for ($i = $start; $i <= $end; $i++) {
-                        if (!$this->isValidIp($ip) || !$this->isValidPort($i)) {
-                            throw new InvalidArgumentException("Invalid ip " . $ip . ':' . $i);
-                        }
-                        $ipObj = new BannedIp();
-                        $ipObj->setIpAddress($ip . ':' . $i);
-                        $perimeter->addBannedIp($ipObj);
-                    }
-                } else {
-                    // Single port specified
-                    if (!$this->isValidIp($ip) || !$this->isValidPort($port)) {
-                        throw new InvalidArgumentException("Invalid ip" . $ip . ':' . $port);
-                    }
+
+                $ipRange = $this->getIPRangeFromCIDR($ip, $cidr);
+                foreach ($ipRange as $ipInRange) {
                     $ipObj = new BannedIp();
-                    $ipObj->setIpAddress($ip .':' . $port);
+                    $ipObj->setIpAddress($ipInRange);
                     $perimeter->addBannedIp($ipObj);
                 }
             } else {
