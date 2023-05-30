@@ -5,6 +5,7 @@ import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
+import CertFrTable from "./CertFrTable";
 
 export default class DefinitionParam extends React.Component{
     state={
@@ -21,35 +22,7 @@ export default class DefinitionParam extends React.Component{
         errorMessageDisplay: false,
         certFR: "",
     };
-
-
-
-
-    async componentDidMount() {
-        try {
-
-            const fetchData = async () => {
-                const result = await fetch(
-                    "https://api.allorigins.win/raw?url=https://estcequecestbientotleweekend.fr",
-                    {
-                        method: "GET",
-                        headers: {
-                            "x-requested-with": "text/plain",
-                        },
-                    }
-                );
-                const data = await result.text();
-                this.setState({ data });
-            };
-            await fetchData();
-            console.log(this.state.certFR);
-
-        } catch (error) {
-            console.log(error);
-        }
-    }
-
-    change = e=>{
+        change = e=>{
       const { name, value } = e.target;
       if (name==="domainNames") {
         const arr = value.split([","]).map(item => item.trim()) ;
@@ -225,7 +198,7 @@ export default class DefinitionParam extends React.Component{
             </form>
         </div>
     </div>
-        <div>{this.state.certFR}</div>
+            <CertFrTable/>
     </div>
         );
     }
