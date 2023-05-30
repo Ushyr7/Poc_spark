@@ -256,33 +256,17 @@ class PerimeterService
             if (!is_string($ipAddress)) {
                 throw new InvalidArgumentException("ip must be a string.");
             }
-            $port = $this->getPort($ipAddress);
-            $ip = $this->getIp($ipAddress);
-
-            // Check if the IP address contains a port range
-            if (isset($port)) {
-                $portRange = null;
-                if (str_contains($port, '-')) {
-                    $portRange = $port;
+            // Check if the IP address contains CIDR notation
+            if (strpos($ipAddress, '/') !== false) {
+                [$ip, $cidr] = explode('/', $ipAddress);
+                if (!$this->isValidIpCIDR($ip, $cidr)) {
+                    throw new InvalidArgumentException("Invalid ip with CIDR: " . $ipAddress);
                 }
-                if ($portRange) {
-                    [$start, $end] = explode("-", $portRange);
-                    // Add each IP address with the corresponding port to the database
-                    for ($i = $start; $i <= $end; $i++) {
-                        if (!$this->isValidIp($ip) || !$this->isValidPort($i)) {
-                            throw new InvalidArgumentException("Invalid ip " . $ip . ':' . $i);
-                        }
-                        $ipObj = new Ip();
-                        $ipObj->setIpAddress($ip . ':' . $i);
-                        $perimeter->addIp($ipObj);
-                    }
-                } else {
-                    // Single port specified
-                    if (!$this->isValidIp($ip) || !$this->isValidPort($port)) {
-                        throw new InvalidArgumentException("Invalid ip" . $ip . ':' . $port);
-                    }
+
+                $ipRange = $this->getIPRangeFromCIDR($ip, $cidr);
+                foreach ($ipRange as $ipInRange) {
                     $ipObj = new Ip();
-                    $ipObj->setIpAddress($ip .':' . $port);
+                    $ipObj->setIpAddress($ipInRange);
                     $perimeter->addIp($ipObj);
                 }
             } else {
@@ -300,33 +284,17 @@ class PerimeterService
             if (!is_string($ipAddress)) {
                 throw new InvalidArgumentException("ip must be a string.");
             }
-            $port = $this->getPort($ipAddress);
-            $ip = $this->getIp($ipAddress);
-
-            // Check if the IP address contains a port range
-            if (isset($port)) {
-                $portRange = null;
-                if (str_contains($port, '-')) {
-                    $portRange = $port;
+            // Check if the IP address contains CIDR notation
+            if (strpos($ipAddress, '/') !== false) {
+                [$ip, $cidr] = explode('/', $ipAddress);
+                if (!$this->isValidIpCIDR($ip, $cidr)) {
+                    throw new InvalidArgumentException("Invalid ip with CIDR: " . $ipAddress);
                 }
-                if ($portRange) {
-                    [$start, $end] = explode("-", $portRange);
-                    // Add each IP address with the corresponding port to the database
-                    for ($i = $start; $i <= $end; $i++) {
-                        if (!$this->isValidIp($ip) || !$this->isValidPort($i)) {
-                            throw new InvalidArgumentException("Invalid ip " . $ip . ':' . $i);
-                        }
-                        $ipObj = new BannedIp();
-                        $ipObj->setIpAddress($ip . ':' . $i);
-                        $perimeter->addBannedIp($ipObj);
-                    }
-                } else {
-                    // Single port specified
-                    if (!$this->isValidIp($ip) || !$this->isValidPort($port)) {
-                        throw new InvalidArgumentException("Invalid ip" . $ip . ':' . $port);
-                    }
+
+                $ipRange = $this->getIPRangeFromCIDR($ip, $cidr);
+                foreach ($ipRange as $ipInRange) {
                     $ipObj = new BannedIp();
-                    $ipObj->setIpAddress($ip .':' . $port);
+                    $ipObj->setIpAddress($ipInRange);
                     $perimeter->addBannedIp($ipObj);
                 }
             } else {
