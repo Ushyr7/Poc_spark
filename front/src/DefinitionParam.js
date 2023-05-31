@@ -9,7 +9,7 @@ import CertFrTable from "./CertFrTable";
 
 export default class DefinitionParam extends React.Component{
     state={
-        domainNames: [],
+        domainNames: [] ,
         ips: [],
         ipsString: "",
         bannedIps: [],
