@@ -29,19 +29,19 @@ class Perimeter
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $created_at;
 
-    #[ORM\OneToMany(mappedBy: "perimeter", targetEntity: "App\Entity\Ip", cascade:["persist"])]
+    #[ORM\OneToMany(mappedBy: "perimeter", targetEntity: "App\Entity\Ip", cascade:["persist", "remove"])]
     #[ORM\JoinColumn(onDelete: "CASCADE")]
     private $ips;
 
-    #[ORM\OneToMany(mappedBy: "perimeter", targetEntity: "App\Entity\Domain", cascade:["persist"])]
+    #[ORM\OneToMany(mappedBy: "perimeter", targetEntity: "App\Entity\Domain", cascade:["persist", "remove"])]
     #[ORM\JoinColumn(onDelete: "CASCADE")]
     private $domains;
 
-    #[ORM\OneToMany(mappedBy: "perimeter", targetEntity: "App\Entity\Vulnerability", cascade:["persist"])]
+    #[ORM\OneToMany(mappedBy: "perimeter", targetEntity: "App\Entity\Vulnerability", cascade:["persist", "remove"])]
     #[ORM\JoinColumn(onDelete: "CASCADE")]
     private $vulnerabilites;
 
-    #[ORM\OneToMany(mappedBy: "perimeter", targetEntity: "App\Entity\BannedIp", cascade:["persist"])]
+    #[ORM\OneToMany(mappedBy: "perimeter", targetEntity: "App\Entity\BannedIp", cascade:["persist", "remove"])]
     #[ORM\JoinColumn(onDelete: "CASCADE")]
     private $bannedIps;
 

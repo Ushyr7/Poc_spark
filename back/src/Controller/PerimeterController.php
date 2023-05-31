@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Doctrine\ORM\EntityManagerInterface;
 
 class PerimeterController extends AbstractController
 {
@@ -168,6 +169,18 @@ class PerimeterController extends AbstractController
             return new JsonResponse($e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
         return new JsonResponse(['message' =>'Perimeter successfully updated'], Response::HTTP_OK);
+    }
+
+    #[Route('/perimeter/{id}', name: 'perimeter_delete', methods: ['DELETE'])]
+    public function delete(Perimeter $perimeter = null, EntityManagerInterface $entityManager): JsonResponse
+    {
+        if ($perimeter === null) {
+            return new JsonResponse(['error' => 'Perimeter not found'], Response::HTTP_NOT_FOUND);
+        }       
+        $entityManager->remove($perimeter);
+        $entityManager->flush();
+
+        return new JsonResponse(['message' => 'Perimeter deleted successfully']);
     }
 
 }
