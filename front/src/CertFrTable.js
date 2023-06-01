@@ -67,12 +67,13 @@ export default class CertFrTable extends React.Component {
         const words = formattedTitle.split(" ");
         const formattedWords = words.map((word) => {
             if (word.startsWith("CERTFR")) {
-                return <span style={{ color: "red"}}>{word}</span>;
+                return <span style={{ color: "red" }}>{word}</span>;
             }
             return word;
         });
         return formattedWords;
     }
+
 
     formatDate(dateString) {
         const date = new Date(dateString);
@@ -90,7 +91,7 @@ export default class CertFrTable extends React.Component {
                     <tbody>
                     {titles.map((title, index) => (
                         <tr key={index} className={index % 2 !== 0 ? "" : "even-row"}>
-                            <td style={{ fontFamily: "BigCaslon", fontSize: "16px", paddingRight:"25px"}}>{dates[index]}</td>
+                            <td style={{ fontFamily: "BigCaslon", fontSize: "16px", paddingRight:"25px", paddingLeft:"1px"}}>{dates[index]}</td>
                             <td><a href={links[index]} style={{ font: "Arial", fontSize: "20px"}}>
                                         {this.formatTitle(title).map((word, wordIndex) => (
                                             <React.Fragment key={wordIndex}>{word} </React.Fragment>

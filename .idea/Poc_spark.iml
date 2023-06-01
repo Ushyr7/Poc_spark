@@ -5,6 +5,8 @@
       <sourceFolder url="file://$MODULE_DIR$/back/src" isTestSource="false" packagePrefix="App\" />
       <sourceFolder url="file://$MODULE_DIR$/back/tests" isTestSource="true" packagePrefix="App\Tests\" />
       <sourceFolder url="file://$MODULE_DIR$/back/spec" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/spec" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/tests" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/back/.idea" />
       <excludeFolder url="file://$MODULE_DIR$/back/var" />
       <excludeFolder url="file://$MODULE_DIR$/back/vendor" />
