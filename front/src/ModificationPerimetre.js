@@ -3,6 +3,8 @@ import { useParams ,useNavigate  } from 'react-router-dom';
 import logoattineos from './logoattineos.png';
 import './DefinitionParam.css';
 import { Link } from 'react-router-dom';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import '@fortawesome/fontawesome-free/css/all.min.css';
 
 function ModificationPerimetre() {
   const [domains,setDomains]=useState([]);
@@ -167,56 +169,60 @@ setErrors((prevState) => ({
       <header className = "bar-1"><img src={logoattineos} className='logo'  alt=""/></header>
         <div>
           <div className="container">
-            <h1 className="text-ac4xl font-bold mb-8">Modification du périmètre</h1>
+            <h1 className="text-ac4xl font-bold mb-8  mt-5">Modification du périmètre</h1>
             <form onSubmit={handleSubmit}>
-            <div>
+            <div className="mb-4 mt-5">
                 <label htmlFor="domains">Nom des domaines:</label>
                 <input 
                 type="text" 
                 id="domains" 
                 name="domains" 
-                className={'border border-gray-400 p-2 w-full '}
+                className='form-label border border-gray-400 p-2 w-full'
                 value={domains} 
                 onChange={e =>setDomains(e.target.value)}
                 onBlur={() => validateForm("domains", domains)}
                 />
                 {errors.domains && <span className="error-message">{errors.domains}</span>}
             </div>
-            <div>
+            <div className="mb-4 mt-4">
                 <label htmlFor="ips">Adresse(s) IP:</label>
                 <textarea 
                 rows={5}
                 type="ips" 
                 id="ips" 
-                name="ips" 
+                name="ips"
+                className="form-label border border-gray-400 p-2 w-full" 
                 value={ips} 
                 onChange={e =>setIps(e.target.value)}
                 onBlur={() => validateForm("ips", ips)}
                 />
                 {errors.ips && <span className="error-message">{errors.ips}</span>}
             </div>
-            <div>
+            <div className="mb-4 mt-4">
                 <label htmlFor="bannedIps">Adresse(s)IP à exclure:</label>
                 <textarea 
                 type="bannedIps" 
                 id="bannedIps" 
-                name="bannedIps" 
+                name="bannedIps"
+                className="form-label border border-gray-400 p-2 w-full" 
                 value={bannedIps} 
                 onBlur={() => validateForm("bannedIps", bannedIps)}
                 onChange={e =>setBannedIps(e.target.value)}/>
                 {errors.bannedIps && <span className="error-message">{errors.bannedIps}</span>}
             </div>
-            <div className="mb-4">
+            <div className="mb-4 mt-4">
               <label htmlFor="contact_mail">Contact Email:</label>
               <input type="text" id="contact_mail" name="contact_mail"  value={contact_mail} 
+                className="form-label border border-gray-400 p-2 w-full"
                onBlur={() => validateForm("contact_mail", contact_mail)}
               onChange={e =>setContactMail(e.target.value)}
               />
               {errors.contactMail && <span className="error-message">{errors.contactMail}</span>}
 
             </div>
-              
-           <button type="submit">Enregistrer les modifications</button>
+            <div className="button-group">
+           <button type="submit" className='centered-button mt-0.5 rounded-button'>Enregistrer les modifications</button>
+            </div>
             </form>
           </div>
         </div>

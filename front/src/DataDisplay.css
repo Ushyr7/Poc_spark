@@ -1,0 +1,15 @@
+.table-container {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .table-wrapper {
+    flex: 1;
+    overflow-y: auto;
+  }
+  
+  .custom-table {
+    width: 100%;
+    border-collapse: collapse;
+  }

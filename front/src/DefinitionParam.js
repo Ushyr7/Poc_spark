@@ -6,7 +6,9 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import { Link } from 'react-router-dom';
-
+import CertFrTable from './CertFrTable';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import '@fortawesome/fontawesome-free/css/all.min.css';
 //import Perimeter from 'C:/Users/HajarLOULIDI/Attispark/Poc_spark/back/src/Entity/Perimeter.php';
 export default class DefinitionParam extends React.Component{
     state={
@@ -212,10 +214,10 @@ export default class DefinitionParam extends React.Component{
            <header className = "bar-1"><img src={logoattineos} className='logo'  alt=""/></header>
             <div>
             <div className="container">
-                <h1 className="text-4xl font-bold mb-8">Définition du périmètre</h1>
+                <h1 className="text-4xl font-bold mb-8 mt-5">Définition du périmètre</h1>
                 <form onSubmit={this.onSubmit}>
                     {/*domainNames Field*/}
-                    <div className="mb-4">
+                    <div className="mb-4 mt-5">
                         <label htmlFor="domainNames" className="block font-bold mb-2">Nom des domaines <span className="required">*</span></label>
                         <input  
                         //error={this.state.domainNames.length === 0}
@@ -223,7 +225,7 @@ export default class DefinitionParam extends React.Component{
                         type="text"
                         id="domainNames"
                         name="domainNames"
-                        className={'border border-gray-400 p-2 w-full '}
+                        className="form-label border border-gray-400 p-2"
                         placeholder="domaine1.com, domaine2.com, domaine3.com" 
                         value={this.state.domainNames} 
                         onChange={(e)  => this.change(e)}
@@ -238,17 +240,15 @@ export default class DefinitionParam extends React.Component{
                 </div>
                
                 {/* ips Field*/}
-                <div className="mb-4">
+                <div className="mb-4 mt-4">
                     <label htmlFor="ips" className="block font-bold mb-2">Adresse(s) IP <span className="required">*</span></label>
                     <textarea 
                     rows={5}
                     id="ipsString"
                     name="ipsString"
-                    className="border border-gray-400 p-2 w-full"
+                    className="form-label border border-gray-400 p-2 w-full"
                     placeholder=" 192.168.0.1 
-                    10.0.0.0/24
-                    2001:db8::/32
-                    122.36.5.45:8-12"
+                    10.0.0.0/24"
                     value={this.state.ipsString} 
                     onChange={(e)  => this.changeIp(e) }
                     onKeyPress={(event) => this.handleKeyPress(event, 'ipsString')}
@@ -260,13 +260,13 @@ export default class DefinitionParam extends React.Component{
                   )}
                 </div>
                   {/* Adresse IP à exclure Field*/}
-                  <div className="mb-4">
+                  <div className="mb-4  mt-4">
                     <label htmlFor="bannedIps" className="block font-bold mb-2">Adresse(s) IP à exclure</label>
                     <textarea 
                     rows={5}
                     id="bannedIpsString"
                     name="bannedIpsString"
-                    className="border border-gray-400 p-2 w-full"
+                    className="form-label border border-gray-400 p-2 w-full"
                     placeholder=" 192.168.0.1
                     10.0.0.0
                     172.16.0.0/16" 
@@ -283,13 +283,13 @@ export default class DefinitionParam extends React.Component{
                 </div>
 
                 {/* Mail de contact Field*/}
-                <div className="mb-4">
+                <div className="mb-4 mt-4">
                     <label htmlFor="contactEmail" className="block font-bold mb-2">Mail de contact <span className="required">*</span></label>
                     <input 
                     type="text"
                     id="contactEmail"
                     name="contactEmail"
-                    className="border border-gray-400 p-2 w-full"
+                    className="form-label border border-gray-400 p-2 w-full"
                     placeholder="votreadresse@email.com" 
                     value={this.state.contactEmail} 
                     onChange={(e)  => this.change(e) }
@@ -300,10 +300,10 @@ export default class DefinitionParam extends React.Component{
                       <p className="error-message">{this.state.contactEmailErrorMessage}</p>
                     )}
                 </div>
-
-                <button variant="contained" onMouseDown={this.handleReviewClick} disabled={hasErrors || this.isFormEmpty() }>Vérifier</button>
-                <Link to={"/EntityDisplay"}><button >Modifier un périmètre</button></Link>
-               
+                <div className="button-group">
+                <button className="centered-button mt-0.5 rounded-button" onMouseDown={this.handleReviewClick} disabled={hasErrors || this.isFormEmpty() }>Vérifier</button>
+                <Link to={"/EntityDisplay"}><button  className="centered-button mt-0.5 rounded-button" >Modifier un périmètre</button></Link>
+                </div>
                 <Dialog open={this.state.review} onClose={this.handleReviewClose}>
                 <DialogTitle>Veuillez vérifier vos informations avant de soumettre</DialogTitle>
                 <DialogContent>
@@ -338,6 +338,7 @@ export default class DefinitionParam extends React.Component{
                 
             </form>
         </div>
+       {/* < CertFrTable />*/}
     </div>
     </div>
         );
