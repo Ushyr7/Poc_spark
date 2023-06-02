@@ -1,0 +1,6 @@
+# config/packages/nelmio_api_doc.yaml
+nelmio_api_doc:
+  areas:
+    default:
+      path_patterns: [^/api]
+      host_patterns: [^api\.]
