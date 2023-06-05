@@ -1,44 +1,36 @@
 import React from 'react';
 
-function Pagination({ currentPage, totalPages, onPageChange }) {
-  // Créer un tableau de numéros de page
-  const pageNumbers = [];
-  for (let i = 1; i <= totalPages; i++) {
-    pageNumbers.push(i);
-  }
+const Pagination = ({ pageCount, currentPage, onPageChange }) => {
+  const handlePageClick = (selectedPage) => {
+    onPageChange(selectedPage);
+  };
+
+  const renderPageNumbers = () => {
+    const pageNumbers = [];
+
+    for (let i = 0; i < pageCount; i++) {
+      const pageNumber = i;
+      const isActive = pageNumber === currentPage;
+
+      pageNumbers.push(
+        <li key={i} className={`page-item ${isActive ? 'active' : ''}`}>
+          <button className="page-link" onClick={() => handlePageClick(pageNumber)}>
+            {pageNumber + 1}
+          </button>
+        </li>
+      );
+    }
+
+    return pageNumbers;
+  };
 
   return (
-    <div className="pagination-container">
+    <nav>
       <ul className="pagination">
-        {/* Bouton précédent */}
-        {currentPage > 1 && (
-          <li>
-            <a href="#" onClick={() => onPageChange(currentPage - 1)}>
-              &laquo; Précédent
-            </a>
-          </li>
-        )}
-
-        {/* Numéros de page */}
-        {pageNumbers.map((pageNumber) => (
-          <li key={pageNumber} className={currentPage === pageNumber ? 'active' : ''}>
-            <a href="#" onClick={() => onPageChange(pageNumber)}>
-              {pageNumber}
-            </a>
-          </li>
-        ))}
-
-        {/* Bouton suivant */}
-        {currentPage < totalPages && (
-          <li>
-            <a href="#" onClick={() => onPageChange(currentPage + 1)}>
-              Suivant &raquo;
-            </a>
-          </li>
-        )}
+        {renderPageNumbers()}
       </ul>
-    </div>
+    </nav>
   );
-}
+};
 
 export default Pagination;
